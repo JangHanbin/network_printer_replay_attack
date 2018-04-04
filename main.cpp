@@ -29,8 +29,6 @@ int main(int argc, char* argv[])
     google::InitGoogleLogging(argv[0]); //enable glog
     FLAGS_logtostderr =1;               //log print to st
 
-    char errbuf[PCAP_ERRBUF_SIZE];
-
     /*********** Data reply ************/
     DataMagician dataMagician;
 
@@ -64,23 +62,22 @@ int main(int argc, char* argv[])
 
     /*********** Data reply ************/
 
-//    Spoofer spoofer;
 
     HostDetector hostDetector(dataMagician.getServer_ip());
 
     //Run Host_adder
-    thread host_adder(&HostDetector::run,&hostDetector); //check difference &class address with class address
+    thread host_adder(&HostDetector::run,&hostDetector); //need to check difference "&class" address with "class" address
 
     //send ARP Request for All user in same network
     hostDetector.askHost();
+    sleep(10);
+    hostDetector.hostPrinter();
 
-    while(true)
-    {
-        sleep(5);
-        hostDetector.hostPrinter();
+    Spoofer spoofer;
+    spoofer.setLocal_mac(hostDetector.getLocalMacAddr());
+    spoofer.setTarget_ip(dataMagician.getServer_ip());
 
-    }
-
+    spoofer.infector(hostDetector.getAddresses());
 
 
 

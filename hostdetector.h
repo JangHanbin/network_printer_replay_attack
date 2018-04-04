@@ -19,17 +19,23 @@ class HostDetector
     IPv4Address local_ip;
     IPv4Range *local_network;
 
+    bool condition=true;
+
 public:
     HostDetector(IPv4Address ipv4);
     ~HostDetector();
     IPv4Address getLocalIpAddr();
     HWAddress<6> getLocalMacAddr();
+
     void run();
     bool scan(const PDU &pdu);
     void hostPrinter();
     void askHost();
+    void semaphore();
+
     IPv4Range getLocal_network() const;
     void setLocal_network(IPv4Address net_addr);        //This function for C class
+    std::map<IPv4Address, HWAddress<6> > getAddresses() const;
 };
 
 

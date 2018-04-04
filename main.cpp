@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
     HostDetector hostDetector(dataMagician.getServer_ip());
 
     //Run Host_adder
-    thread host_adder(&HostDetector::run,&hostDetector); //need to check difference "&class" address with "class" address
+    thread t_host_adder(&HostDetector::run,&hostDetector); //need to check difference "&class" address with "class" address
 
     //send ARP Request for All user in same network
     hostDetector.askHost();
@@ -77,10 +77,12 @@ int main(int argc, char* argv[])
     spoofer.setLocal_mac(hostDetector.getLocalMacAddr());
     spoofer.setTarget_ip(dataMagician.getServer_ip());
 
-    spoofer.infector(hostDetector.getAddresses());
+    //Run Client Infector
+    thread t_infector(&Spoofer::infector,&spoofer,hostDetector.getAddresses());
 
 
 
-    host_adder.join();
+    t_host_adder.join();
+    t_infector.join();
     return 0;
 }

@@ -9,14 +9,16 @@ IPv4Range HostDetector::getLocal_network() const
     return *local_network;
 }
 
-HostDetector::HostDetector(IPv4Address ipv4, char* iface)
+HostDetector::HostDetector(IPv4Address ipv4)
 {
+    iface=iface.default_interface();
+
     local_ip=getLocalIpAddr();
     local_network=new IPv4Range(ipv4 / 24);
 
     config.set_promisc_mode(true);
     config.set_filter("arp");
-    sniffer = new Sniffer(iface, config);
+    sniffer = new Sniffer(iface.name(), config);
 
 }
 
@@ -28,10 +30,15 @@ HostDetector::~HostDetector()
 
 IPv4Address HostDetector::getLocalIpAddr()
 {
-    NetworkInterface iface;
-    iface=iface.default_interface();
+
 
     return iface.ipv4_address();
+}
+
+HWAddress<6> HostDetector::getLocalMacAddr()
+{
+
+    return iface.hw_address();
 }
 
 void HostDetector::run()
@@ -67,6 +74,30 @@ bool HostDetector::scan(const PDU& pdu)
     }
 
     return true;
+}
+
+void HostDetector::hostPrinter()
+{
+    for(auto elem : addresses)
+    {
+        std::cout<< elem.first << " " << elem.second<<std::endl;
+    }
+}
+
+void HostDetector::askHost()
+{
+
+    EthernetII arp_request;
+    ARP arp;
+
+    //ask to all clinet in same network
+    for (const auto &addr :getLocal_network())
+    {
+
+        arp_request=arp.make_arp_request(addr,getLocalIpAddr(),getLocalMacAddr());
+        sender.send(arp_request,iface);
+    }
+
 }
 
 

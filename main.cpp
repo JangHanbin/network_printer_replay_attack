@@ -66,13 +66,24 @@ int main(int argc, char* argv[])
 
 //    Spoofer spoofer;
 
-    HostDetector hostDetector(dataMagician.getServer_ip(),argv[1]);
+    HostDetector hostDetector(dataMagician.getServer_ip());
 
-//       for (const auto &addr : hostDetector.getLocal_network()) {
-//           if(spoofer.getMacAddr(addr)!=NULL)
-//               cout<<spoofer.getMacAddr(addr)<<endl;
-//    }
+    //Run Host_adder
+    thread host_adder(&HostDetector::run,&hostDetector); //check difference &class address with class address
+
+    //send ARP Request for All user in same network
+    hostDetector.askHost();
+
+    while(true)
+    {
+        sleep(5);
+        hostDetector.hostPrinter();
+
+    }
 
 
+
+
+    host_adder.join();
     return 0;
 }

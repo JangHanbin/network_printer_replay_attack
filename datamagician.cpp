@@ -74,6 +74,8 @@ void DataMagician::connectToServ()
 
     }
 
+    std::cout<<"Server Connected!!!"<<std::endl;
+
 }
 
 void DataMagician::sendToServ(uint8_t *data, int data_len)

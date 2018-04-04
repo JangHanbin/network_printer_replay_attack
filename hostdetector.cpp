@@ -69,12 +69,6 @@ bool HostDetector::scan(const PDU& pdu)
         else
         {
             // We've seen this address. If it's not the same HW address, inform it
-            if (arp.sender_hw_addr() != iter->second)
-            {
-//                cout << "[WARNING] " << arp.sender_ip_addr() << " is at "
-//                     << iter->second << " but also at " << arp.sender_hw_addr()
-//                     << endl;
-            }
         }
     }
 

@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
 
     //Connect to Server
     dataMagician.initSockAddr();
-    dataMagician.connectToServ();
+//    dataMagician.connectToServ();
 
 
     //    pcap_t* pcd = pcap_open_offline("test3.pcap",errbuf);
@@ -70,19 +70,26 @@ int main(int argc, char* argv[])
 
     //send ARP Request for All user in same network
     hostDetector.askHost();
-    sleep(10);
+    sleep(3);
     hostDetector.hostPrinter();
 
     Spoofer spoofer;
     spoofer.setLocal_mac(hostDetector.getLocalMacAddr());
     spoofer.setTarget_ip(dataMagician.getServer_ip());
 
+
     //Run Client Infector
     thread t_infector(&Spoofer::infector,&spoofer,hostDetector.getAddresses());
+    //Run Data Parser && save to pcap
+    thread t_parserRun(&DataMagician::parserRun,&dataMagician);
+    //Run Relay function
+    thread t_bridge(&Spoofer::bridge,&spoofer);
 
 
 
     t_host_adder.join();
     t_infector.join();
+    t_parserRun.join();
+    t_bridge.join();
     return 0;
 }

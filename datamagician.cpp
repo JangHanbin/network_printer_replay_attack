@@ -3,6 +3,7 @@
 #include <cstring>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <string.h>
 
 char *DataMagician::getServer_ip() const
 {
@@ -32,12 +33,71 @@ DataMagician::DataMagician()
     //init socket File Descriptor
     sockInit();
 
+    //init interface
+    iface=iface.default_interface();
+    local_mac=iface.hw_address();
 
 }
 
 DataMagician::~DataMagician()
 {
     close(this->descriptor);
+}
+
+bool DataMagician::dataParser(PDU &pdu)
+{
+    const EthernetII& etherII = pdu.rfind_pdu<EthernetII>();
+    const IP& ip = pdu.rfind_pdu<IP>();
+    const TCP& tcp = pdu.rfind_pdu<TCP>();
+    const RawPDU& rawPDU = pdu.rfind_pdu<RawPDU>();
+
+     //if host not want to network printing parsing next one
+     if(tcp.dport()!=atoi(port) || etherII.dst_addr()!= local_mac) return true;
+
+     //there is a data
+     if(rawPDU.payload_size()>0)
+     {
+         // Let's check if there's already an entry for this address
+         auto iter = victims.find(ip.src_addr());
+
+         if (iter == victims.end())
+         {
+             std::cout<<"Income!"<<std::endl;
+             // We haven't seen this address. Save it.
+             victims.insert({ip.src_addr(),std::vector<EthernetII>(1,etherII.src_addr())});
+         }
+    }
+     //if last packet
+     if(tcp.flags() == (TCP::ACK | TCP::FIN))
+     {
+         std::cout<<"Saved"<<std::endl;
+         std::string file_name="./"; //make current dir
+
+         auto iter = victims.find(ip.src_addr());
+
+         //write pcap files
+         PacketWriter writer((file_name+iter->first.to_string())+".pcap",DataLinkType<EthernetII>());
+
+         //Reference Vector value
+         std::vector<EthernetII> &vec=iter->second;
+         writer.write(vec.begin(),vec.end());
+
+         //map erase
+         victims.erase(iter);
+     }
+
+     return true;
+
+}
+
+void DataMagician::parserRun()
+{
+    SnifferConfiguration config;
+    config.set_promisc_mode(true);
+    config.set_filter("tcp");
+
+    Sniffer sniffer(iface.name());
+    sniffer.sniff_loop(make_sniffer_handler(this,&DataMagician::dataParser));
 }
 
 void DataMagician::sockInit()

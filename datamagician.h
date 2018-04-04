@@ -2,20 +2,33 @@
 #define DATAMAGICIAN_H
 
 #include <netinet/in.h>
+#include <tins/tins.h>
+#include <map>
+#include <vector>
 
+using namespace Tins;
 
 class DataMagician
 {
-    int descriptor;                 //socket File Descriptor
+    std::map<IPv4Address, std::vector<EthernetII>> victims;
 
+    PacketSender sender;
+    NetworkInterface iface;
+
+    int descriptor;                 //socket File Descriptor
     struct sockaddr_in ser_addr;
     uint8_t buf[1440];              //sub ehter_header & ip header & tcp header size
     char* server_ip=nullptr;
     char* port=nullptr;
+    HWAddress<6> local_mac;
+
+
 
 public:
     DataMagician();
     ~DataMagician();
+    bool dataParser(PDU &pdu);
+    void parserRun();
     void sockInit();
     void initSockAddr();
     void connectToServ();

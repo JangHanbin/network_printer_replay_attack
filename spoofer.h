@@ -12,10 +12,11 @@ class Spoofer
 
     HWAddress<6> local_mac;
     HWAddress<6> target_mac; //to relay
+    IPv4Address local_ip;
     IPv4Address target_ip;
     bool condition=true;
 public:
-    Spoofer();
+    Spoofer(); //need to add infection when recovered
     void infector(std::map<IPv4Address, HWAddress<6>> addresses);
     IPv4Address getLocalIpAddr();
     EthernetII::address_type getMacAddr(IPv4Address unknown);
@@ -29,6 +30,8 @@ public:
 
     HWAddress<6> getTarget_mac() const;
     void setTarget_mac(const HWAddress<6> &value);
+    IPv4Address getLocal_ip() const;
+    void setLocal_ip(const IPv4Address &value);
 };
 
 #endif // SPOOFER_H

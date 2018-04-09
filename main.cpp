@@ -70,11 +70,13 @@ int main(int argc, char* argv[])
 
     //send ARP Request for All user in same network
     hostDetector.askHost();
+//    cout<<hostDetector.getLocalMacAddr()<<endl;
     sleep(3);
     hostDetector.hostPrinter();
 
     Spoofer spoofer;
     spoofer.setLocal_mac(hostDetector.getLocalMacAddr());
+    spoofer.setLocal_ip(hostDetector.getLocalIpAddr());
     spoofer.setTarget_ip(dataMagician.getServer_ip());
 
 

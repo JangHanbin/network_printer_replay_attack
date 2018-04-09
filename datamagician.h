@@ -21,7 +21,7 @@ class DataMagician
     char* server_ip=nullptr;
     char* port=nullptr;
     HWAddress<6> local_mac;
-
+    std::vector<EthernetII> vec;
 
 
 public:

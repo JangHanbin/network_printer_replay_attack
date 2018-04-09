@@ -1,6 +1,7 @@
 #include "hostdetector.h"
 #include <iostream>
 #include <functional>
+#include <unistd.h>
 
 using std::bind;
 
@@ -100,6 +101,7 @@ void HostDetector::askHost()
 
         arp_request=arp.make_arp_request(addr,getLocalIpAddr(),getLocalMacAddr());
         sender.send(arp_request,iface);
+        usleep(800); //sleep 500 millisecond
     }
 
 }

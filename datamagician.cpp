@@ -145,8 +145,8 @@ void DataMagician::sendToServ(uint8_t *data, int data_len)
 
     if(write(descriptor,data,data_len)<0)
     {
-       std::cout<<"Data send Error!"<<std::endl;
+        std::cout<<data_len<<std::endl;
+        std::cout<<"Data send Error!"<<std::endl;
     }
-
 
 }

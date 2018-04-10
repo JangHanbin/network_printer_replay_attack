@@ -80,9 +80,9 @@ bool DataMagician::dataParser(PDU &pdu)
         std::cout<<"Saved"<<std::endl;
         std::string file_name="./"; //make current dir
 
-
+        file_name = file_name+iter->first.to_string()+".pcap";
         //write pcap files
-        PacketWriter writer((file_name+iter->first.to_string())+".pcap",DataLinkType<EthernetII>());
+        PacketWriter writer(file_name,DataLinkType<EthernetII>());
 
         for(auto pdu : *(iter->second))
         {
@@ -92,6 +92,27 @@ bool DataMagician::dataParser(PDU &pdu)
         //map, vec erase
         delete iter->second;
         victims.erase(iter);
+        std::cout<<"Pcap File Saved at "<<file_name<<std::endl;
+    }
+
+    return true;
+
+}
+
+void DataMagician::doReplay(char *pcap_name)
+{
+    connectToServ();
+    FileSniffer file_sniffer(pcap_name);
+
+    file_sniffer.sniff_loop(make_sniffer_handler(this,&DataMagician::readFromFile));
+}
+
+bool DataMagician::readFromFile(PDU &pdu)
+{
+    const RawPDU& rawPDU= pdu.rfind_pdu<RawPDU>();
+    if(rawPDU.payload_size()>0)
+    {
+        sendToServ((uint8_t*)rawPDU.payload().data(),rawPDU.payload_size());
     }
 
     return true;

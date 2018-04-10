@@ -82,10 +82,12 @@ bool HostDetector::scan(const PDU& pdu)
 
 void HostDetector::hostPrinter()
 {
+    std::cout<<std::endl;
+    std::cout<<"*                            Detected Host List                              *"<<std::endl<<std::endl;
 
     for(const auto elem : addresses)
     {
-        std::cout<< elem.first << " " << elem.second<<std::endl;
+        std::cout<<"[Host IP] : "<< elem.first << " ---> [HW Address] : " << elem.second<<std::endl;
     }
 }
 

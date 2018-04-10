@@ -28,6 +28,8 @@ public:
     DataMagician();
     ~DataMagician();
     bool dataParser(PDU &pdu);
+    void doReplay(char* pcap_name);
+    bool readFromFile(PDU& pdu);
     void parserRun();
     void sockInit();
     void initSockAddr();

@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
     spoofer.setLocal_ip(hostDetector.getLocalIpAddr());
     spoofer.setTarget_ip(dataMagician.getServer_ip());
 
-    cout<<"*                            Saved Pcap file List                              *"<<endl<<endl;
+    cout<<"*                            Saved Pcap List                              *"<<endl<<endl;
     system("ls | grep *.pcap");
 
     //Run Client Infector

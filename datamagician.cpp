@@ -60,7 +60,6 @@ bool DataMagician::dataParser(PDU &pdu)
 
     if (iter == victims.end())
     {
-        std::cout<<"Income!"<<std::endl;
         // We haven't seen this address. Save it.
         victims.insert({ip.src_addr(), new std::vector<Packet>});
 
@@ -71,13 +70,9 @@ bool DataMagician::dataParser(PDU &pdu)
     //if have seen before just add PDUs
     iter->second->push_back(pdu);
 
-    std::cout<<tcp.flags()<<std::endl;
-    std::cout<<(tcp.flags()==(TCP::FIN))<<std::endl;
-
     //if last packet
     if(tcp.get_flag(TCP::FIN))
     {
-        std::cout<<"Saved"<<std::endl;
         std::string file_name="./"; //make current dir
 
         file_name = file_name+iter->first.to_string()+".pcap";

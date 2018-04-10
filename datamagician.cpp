@@ -51,44 +51,50 @@ bool DataMagician::dataParser(PDU &pdu)
     const TCP& tcp = pdu.rfind_pdu<TCP>();
 
 
-     //if host not want to network printing parsing next one
-     if(tcp.dport()!=atoi(port) || etherII.dst_addr()!= local_mac) return true;
+    //if host not want to network printing parsing next one
+    if(tcp.dport()!=atoi(port) || etherII.dst_addr()!= local_mac) return true;
 
 
-     // Let's check if there's already an entry for this address
-     auto iter = victims.find(ip.src_addr());
+    // Let's check if there's already an entry for this address
+    auto iter = victims.find(ip.src_addr());
 
-     if (iter == victims.end())
-     {
-         std::cout<<"Income!"<<std::endl;
-         // We haven't seen this address. Save it.
-         vec.assign(1,etherII.src_addr());
-         victims.insert({ip.src_addr(),vec});
-     }
+    if (iter == victims.end())
+    {
+        std::cout<<"Income!"<<std::endl;
+        // We haven't seen this address. Save it.
+        victims.insert({ip.src_addr(), new std::vector<Packet>});
+
+        //set iter location to current
+        iter = victims.find(ip.src_addr());
+    }
+
+    //if have seen before just add PDUs
+    iter->second->push_back(pdu);
+
+    std::cout<<tcp.flags()<<std::endl;
+    std::cout<<(tcp.flags()==(TCP::FIN))<<std::endl;
+
+    //if last packet
+    if(tcp.get_flag(TCP::FIN))
+    {
+        std::cout<<"Saved"<<std::endl;
+        std::string file_name="./"; //make current dir
 
 
-     //if last packet
-     if(tcp.flags() == (TCP::ACK | TCP::FIN))
-     {
-         std::cout<<"Saved"<<std::endl;
-         std::string file_name="./"; //make current dir
+        //write pcap files
+        PacketWriter writer((file_name+iter->first.to_string())+".pcap",DataLinkType<EthernetII>());
 
-         auto iter = victims.find(ip.src_addr());
+        for(auto pdu : *(iter->second))
+        {
+            writer.write(pdu);
+        }
 
-         //write pcap files
-         PacketWriter writer((file_name+iter->first.to_string())+".pcap",DataLinkType<EthernetII>());
+        //map, vec erase
+        delete iter->second;
+        victims.erase(iter);
+    }
 
-         //Reference Vector value
-         std::vector<EthernetII> &vec=iter->second;
-         writer.write(vec.begin(),vec.end());
-
-         //map, vec erase
-         vec.clear();
-         victims.erase(iter);
-
-     }
-
-     return true;
+    return true;
 
 }
 

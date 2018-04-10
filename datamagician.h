@@ -10,7 +10,7 @@ using namespace Tins;
 
 class DataMagician
 {
-    std::map<IPv4Address, std::vector<EthernetII>> victims;
+    std::map<IPv4Address, std::vector<Packet>*> victims;
 
     PacketSender sender;
     NetworkInterface iface;
@@ -21,7 +21,7 @@ class DataMagician
     char* server_ip=nullptr;
     char* port=nullptr;
     HWAddress<6> local_mac;
-    std::vector<EthernetII> vec;
+    std::vector<Packet> *p_vector;
 
 
 public:
